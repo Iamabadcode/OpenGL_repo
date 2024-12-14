@@ -5,17 +5,19 @@
 
 #include "../res/graphics.h"
 
+std::vector<std::pair<std::string, unsigned int>> shaders = {
+    { "simple_vertex", GL_VERTEX_SHADER},
+    {"simple_fragment", GL_FRAGMENT_SHADER}
+
+}
+
 int main(void)
 {
     Screen screen(1000, 500);
-    /*
-    screen.CreateShaderProgram({
-        { "simple_vertex", GL_VERTEX_SHADER},
-        /*{"simple_fragment", GL_FRAGMENT_SHADER}*/
-    //});
-
-
-
+    
+    screen.includeShaders({
+        
+    });
 
 
     float positions[] = {

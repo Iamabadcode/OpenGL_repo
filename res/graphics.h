@@ -11,7 +11,6 @@ public:
     unsigned int id;
 
     Shader(std::string name, unsigned int shader_type);
-    ~Shader();
     void loadShaderProgram(std::string name);
     void compile();
     
@@ -29,7 +28,7 @@ public:
 
 	Screen(int, int);
 
-    void CreateShaderProgram(std::vector<std::pair<std::string, unsigned int>> shaders);
+    void includeShaders(std::vector<std::pair<std::string, unsigned int>> shaders);
     
 	GLFWwindow* window_p();
 

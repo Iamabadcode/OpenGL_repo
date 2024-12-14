@@ -64,14 +64,12 @@ void Shader::compile() {
         std::cout << "Shader " + name + " failed to compile:\n" <<  message << std::endl;
     }
     std::cout << program[0];
-    delete[] program;
+    if (program) {
+        UnmapViewOfFile(program);
+    }
 }
 
-Shader::~Shader(){
-    glDeleteShader(id);
-}
-
-Screen::Screen(int x_size, int y_size) : size_x(x_size), size_y(y_size), win_p(nullptr) {
+Screen::Screen(int x_size, int y_size) : size_x(x_size), size_y(y_size), win_p(nullptr), program_id(0) {
     //Window:
     if (!glfwInit()) {
         std::cerr << "Error: GLFW failed to initialize." << std::endl;
@@ -90,17 +88,31 @@ Screen::Screen(int x_size, int y_size) : size_x(x_size), size_y(y_size), win_p(n
     }
     std::cout << "Using OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    glClearColor(0.12, 0.5, 0.3, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glViewport(0, 0, size_x, size_y);
 }
 
-void Screen::CreateShaderProgram(std::vector<std::pair<std::string, unsigned int>> shaders) {
+void Screen::includeShaders(std::vector<std::pair<std::string, unsigned int>> shaders) {
     program_id = glCreateProgram();
+    std::vector<GLuint> shader_ids;
     for (int i = 0; i < shaders.size(); i++) {
         Shader shader(shaders[i].first, shaders[i].second);
+        shader_ids.push_back(shader.id);
         glAttachShader(program_id, shader.id);
     }
     glLinkProgram(program_id);
+    GLint success;
+    glGetProgramiv(program_id, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(program_id, 512, NULL, infoLog);
+        throw std::runtime_error("Program linking failed: " + std::string(infoLog));
+    }
+    glUseProgram(program_id);
+
+    for (int i = 0; i < shader_ids.size(); i++) {
+        glDeleteShader(shader_ids[i]);
+    }
 }
 
 GLFWwindow* Screen::window_p() {
