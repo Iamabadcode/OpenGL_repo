@@ -12,25 +12,32 @@ public:
 
     Shader(std::string name, unsigned int shader_type);
     void loadShaderProgram(std::string name);
-    void compile();
-    
+    void compile();    
 
 };
 
 class Screen {
 private:
-    int size_x;
-    int size_y;
-    GLFWwindow* win_p = nullptr;
-    unsigned int program_id;
-
+    static int size_x;
+    static int size_y;
+    static GLFWwindow* win_p;
+    static unsigned int program_id;
+    static unsigned int VAO;
+    static unsigned int VBO;
+    static int vert_count;
+    enum ConstVals {
+        A_BUFFER_VERT_SIZE = 2 * sizeof(float)
+    };
 public:
-
-	Screen(int, int);
-
-    void includeShaders(std::vector<std::pair<std::string, unsigned int>> shaders);
     
-	GLFWwindow* window_p();
+    static void initialize(int, int);
+    static void includeShaders(std::vector<std::pair<std::string, unsigned int>> shaders);
+    static void initArrayBuffer();
+    static void saveVerticies(float*, int);
+    static void render();
 
-    ~Screen();
+	static GLFWwindow* window_p();
+    static bool Open();
+    
+    static void release();
 };

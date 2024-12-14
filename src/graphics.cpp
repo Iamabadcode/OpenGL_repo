@@ -10,6 +10,15 @@
 
 #include "../res/graphics.h"
 
+int Screen::size_x = 1000;
+int Screen::size_y = 500;
+GLFWwindow* Screen::win_p = nullptr;
+unsigned int Screen::program_id = 0;
+unsigned int Screen::VAO = 0;
+unsigned int Screen::VBO = 0;
+int Screen::vert_count = 0;
+
+
 Shader::Shader(std::string _name, unsigned int shader_type) : type(shader_type), name(_name) {
     loadShaderProgram(_name);
     compile();
@@ -63,13 +72,12 @@ void Shader::compile() {
         glGetShaderInfoLog(id, 1024, &log_length, message);
         std::cout << "Shader " + name + " failed to compile:\n" <<  message << std::endl;
     }
-    std::cout << program[0];
     if (program) {
         UnmapViewOfFile(program);
     }
 }
 
-Screen::Screen(int x_size, int y_size) : size_x(x_size), size_y(y_size), win_p(nullptr), program_id(0) {
+void Screen::initialize(int x_size, int y_size) {
     //Window:
     if (!glfwInit()) {
         std::cerr << "Error: GLFW failed to initialize." << std::endl;
@@ -115,11 +123,46 @@ void Screen::includeShaders(std::vector<std::pair<std::string, unsigned int>> sh
     }
 }
 
+void Screen::initArrayBuffer() {
+    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(VAO);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(VAO);
+}
+
+void Screen::saveVerticies(float* data, int vertex_count) {
+    
+    glBufferData(GL_ARRAY_BUFFER, vertex_count * A_BUFFER_VERT_SIZE, data, GL_STATIC_DRAW);
+    vert_count = vertex_count;
+}
+
+void Screen::render() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glDrawArrays(GL_TRIANGLES, 0, vert_count);
+
+    glfwSwapBuffers(win_p);
+}
+
 GLFWwindow* Screen::window_p() {
     return win_p;
 }
 
-Screen::~Screen() {
+bool Screen::Open() {
+    return !glfwWindowShouldClose(win_p);
+}
+
+void Screen::release() {
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(program_id);
     if (win_p) {
         glfwDestroyWindow(win_p);
     }
