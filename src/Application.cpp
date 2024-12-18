@@ -1,41 +1,46 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include <iostream>
 
-#include "../res/graphics.h"
+#include <GL/glew.h>
 
+#include "Graphics/Window.h"
+#include "util/Debug.h"
+#include "Graphics/Renderer.h"
+#include "Graphics/ElementBuffer.h"
 
-int main(void)
+int main()
 {
-    Screen::initialize(500, 1000);
-    
-    Screen::includeShaders({
-        { "simple_vertex", GL_VERTEX_SHADER},
-        {"simple_fragment", GL_FRAGMENT_SHADER}
-    });
+	Debug::activate();
+		
+	Renderer renderer({1000, 500}, "OpenGL Window");
 
-    Screen::initArrayBuffer();
+	float verticies[] = {
+		-0.5,-0.5,
+		0.5, -0.5,
+		0.5, 0.5,
+		-0.5, 0.5
+	};
+	unsigned int indicies[] = {
+		0,1,2,
+		2,3,0
+	};
 
-    float positions[] = {
-        -0.5, -0.5,
-        0.5, -0.5,
-        0.5, 0.5,
-    };
-    
-    Screen::saveVerticies(positions, 3);
+	AttribedVertexBuffer element_buffer(Layout({{GL_FLOAT, 2, false}}), (void*)verticies, sizeof(verticies), GL_STATIC_DRAW);
 
-    // index, size, type, normalized, stride, pointer
-    
 
-    /* Loop until the user closes the window */
-    while (Screen::Open())
-    {
+	unsigned int index_buffer;
+	glGenBuffers(1, &index_buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
 
-        Screen::render();
+	while(true)
+	{
+		glClear(GL_COLOR_BUFFER_BIT);
+		glBindVertexArray(element_buffer.m_vertex_array);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glfwSwapBuffers(renderer.window.ptr());
 
-        glfwPollEvents();
-    }
-    Screen::release();
-    return 0;
+	}
+	glDeleteVertexArrays(1, &element_buffer.m_vertex_array);
+	
+	glDeleteBuffers(1, &index_buffer);
 }
