@@ -1,195 +1,84 @@
-#include <GL/glew.h>
-
 #include "ElementBuffer.h"
-#include "GL_util.h"
 
-/*
-* input: GL_type, count, normalized
-* 
-* 
-*/
 
-Layout::Layout(const std::vector<Layout::Attribute>& layout)
-	:	contents(layout){}
 
-Layout::~Layout()
-{
-	GLCall(glDeleteVertexArrays(1, &m_vertex_array));
-}
-
-AttribedVertexBuffer::AttribedVertexBuffer(const Layout& _layout, void* data, unsigned int size, unsigned int usage)
-	:	layout(_layout)
-{	
-	unsigned int pointer = 0;
-	unsigned int type_size = 0;
-	unsigned int stride = 0;
-
-	for (size_t i = 0; i < _layout.contents.size(); i++)
-	{
-		type_size = GetGlTypeSize(_layout.contents[i].GL_type);
-		stride += _layout.contents[i].count * type_size;
-	}
-
-	GLCall(glGenVertexArrays(1, &m_vertex_array));
-	GLCall(glBindVertexArray(m_vertex_array));
-
-	GLCall(glCreateBuffers(1, &m_vertex_buffer));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer));
-
-	for (size_t i = 0; i < _layout.contents.size(); i++)
-	{
-		type_size = GetGlTypeSize(_layout.contents[i].GL_type);
-
-		GLCall(glVertexAttribPointer(
-			i,
-			_layout.contents[i].count,
-			_layout.contents[i].GL_type,
-			_layout.contents[i].normalized ? GL_TRUE : GL_FALSE,
-			stride,
-			(void*)pointer
-		));
-		GLCall(glEnableVertexAttribArray(i));
-		pointer += _layout.contents[i].count * type_size;
-	}
-	GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, usage));
-}
-
-AttribedVertexBuffer::AttribedVertexBuffer(const Layout& _layout, unsigned int usage)
-	:	layout(_layout)
+VertexBuffer::VertexBuffer(const VertexBuffer::Layout& layout, unsigned int usage)
+	: m_vertex_buffer_id(NULL), m_attrib_array_id(NULL), m_cpu_vertex_cache(nullptr), m_cache_size(NULL), m_stride(0), m_layout(layout), m_usage(usage)
 {
 	unsigned int pointer = 0;
-	unsigned int type_size = 0;
-	unsigned int stride = 0;
-
-	for (size_t i = 0; i < _layout.contents.size(); i++)
-	{
-		type_size = GetGlTypeSize(_layout.contents[i].GL_type);
-		stride += _layout.contents[i].count * type_size;
-	}
-
-	GLCall(glGenVertexArrays(1, &m_vertex_array));
-	GLCall(glBindVertexArray(m_vertex_array));
-
-	GLCall(glCreateBuffers(1, &m_vertex_buffer));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer));
-
-	for (size_t i = 0; i < _layout.contents.size(); i++)
-	{
-		type_size = GetGlTypeSize(_layout.contents[i].GL_type);
-
-		GLCall(glVertexAttribPointer(
-			i,
-			_layout.contents[i].count,
-			_layout.contents[i].GL_type,
-			_layout.contents[i].normalized ? GL_TRUE : GL_FALSE,
-			stride,
-			(void*)pointer
-		));
-		GLCall(glEnableVertexAttribArray(i));
-		pointer += _layout.contents[i].count * type_size;
-	}
-}
-
-AttribedVertexBuffer::AttribedVertexBuffer(void* data, unsigned int size, unsigned int usage)
-	: layout({ {GL_FLOAT, 2, false} })
-{
-	unsigned int pointer = 0;
-	unsigned int type_size = 0;
-	unsigned int stride = 0;
-
-	for (size_t i = 0; i < layout.contents.size(); i++)
-	{
-		type_size = GetGlTypeSize(layout.contents[i].GL_type);
-		stride += layout.contents[i].count * type_size;
-	}
-
-	GLCall(glGenVertexArrays(1, &m_vertex_array));
-	GLCall(glBindVertexArray(m_vertex_array));
-
-	GLCall(glCreateBuffers(1, &m_vertex_buffer));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer));
-
-	for (size_t i = 0; i < layout.contents.size(); i++)
-	{
-		type_size = GetGlTypeSize(layout.contents[i].GL_type);
-
-		GLCall(glVertexAttribPointer(
-			i,
-			layout.contents[i].count,
-			layout.contents[i].GL_type,
-			layout.contents[i].normalized ? GL_TRUE : GL_FALSE,
-			stride,
-			(void*)pointer
-		));
-		GLCall(glEnableVertexAttribArray(i));
-		pointer += layout.contents[i].count * type_size;
-	}
-	GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, usage));
-}
-
-AttribedVertexBuffer::AttribedVertexBuffer(unsigned int usage)
-	: layout({ {GL_FLOAT, 2, false} })
-{
 	
-	unsigned int pointer = 0;
-	unsigned int type_size = 0;
-	unsigned int stride = 0;
-
-	for (size_t i = 0; i < layout.contents.size(); i++)
-	{
-		type_size = GetGlTypeSize(layout.contents[i].GL_type);
-		stride += layout.contents[i].count * type_size;
+	for (int i = 0; i < m_layout.size(); i++) {
+		m_stride += m_layout[i].count * GetGlTypeSize(m_layout[i].GL_Type);
 	}
 
-	GLCall(glGenVertexArrays(1, &m_vertex_array));
-	GLCall(glBindVertexArray(m_vertex_array));
+	GLCall(glGenBuffers(1, &m_vertex_buffer_id));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer_id));
 
-	GLCall(glCreateBuffers(1, &m_vertex_buffer));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer));
+	GLCall(glGenVertexArrays(1, &m_attrib_array_id));
+	GLCall(glBindVertexArray(m_attrib_array_id));
 
-	for (size_t i = 0; i < layout.contents.size(); i++)
-	{
-		type_size = GetGlTypeSize(layout.contents[i].GL_type);
-
+	for(int i = 0; i < m_layout.size(); i++) {
+		
 		GLCall(glVertexAttribPointer(
 			i,
-			layout.contents[i].count,
-			layout.contents[i].GL_type,
-			layout.contents[i].normalized ? GL_TRUE : GL_FALSE,
-			stride,
+			m_layout[i].count,
+			m_layout[i].GL_Type,
+			m_layout[i].normalized ? GL_TRUE : GL_FALSE,
+			m_stride,
 			(void*)pointer
 		));
 		GLCall(glEnableVertexAttribArray(i));
-		pointer += layout.contents[i].count * type_size;
+		pointer += m_layout[i].count * GetGlTypeSize(m_layout[i].GL_Type);
 	}
-	int size = 0;
-	unsigned int data[] = {0};
-	GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, usage));
-
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	//GLCall(glBindVertexArray(0));
 }
 
-AttribedVertexBuffer::~AttribedVertexBuffer()
+VertexBuffer::~VertexBuffer()
 {
-	GLCall(glDeleteBuffers(1, &m_vertex_buffer));
-	GLCall(glDeleteVertexArrays(1, &m_vertex_array));
+	if(m_cpu_vertex_cache)	free(m_cpu_vertex_cache);
+
+	GLCall(glDeleteBuffers(1, &m_vertex_buffer_id));
+	GLCall(glDeleteVertexArrays(1, &m_attrib_array_id));
 }
 
-void AttribedVertexBuffer::AddData(void* new_data, unsigned int new_data_size)
+void VertexBuffer::SetData(void* data, unsigned int size)
 {
-	void* resized_data = std::realloc(data, total_mem_size + new_data_size);
-	ASSERT(resized_data);
-	memcpy(reinterpret_cast<char*>(resized_data) + total_mem_size, new_data, new_data_size);
-	std::free(data);
-	std::free(new_data);
-	data = resized_data;
+	void* new_data_ptr = malloc(size); ASSERT(new_data_ptr);
+	memcpy(new_data_ptr, data, size);
+	if(m_cpu_vertex_cache) free(m_cpu_vertex_cache);
+	m_cpu_vertex_cache = new_data_ptr;
+	m_cache_size = size;
 }
 
-
-
-void AttribedVertexBuffer::BufferData()
+void VertexBuffer::AppendData(void* data, unsigned int size)
 {
-	glBindBuffer(GL_ARRAY_BUFFER,  m_vertex_buffer);
-	glBufferData(GL_ARRAY_BUFFER, total_mem_size, data, GL_STATIC_DRAW);
+	void* new_data_ptr = malloc(m_cache_size + size); ASSERT(new_data_ptr);
+	memcpy(new_data_ptr, m_cpu_vertex_cache, m_cache_size);
+	memcpy(reinterpret_cast<char*>(new_data_ptr) + m_cache_size, data, size);
+	if(m_cpu_vertex_cache) free(m_cpu_vertex_cache);
+	m_cpu_vertex_cache = new_data_ptr;
+	m_cache_size += size;
 }
 
+void VertexBuffer::BufferData()
+{
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer_id);
+	glBufferData(GL_ARRAY_BUFFER, m_cache_size, m_cpu_vertex_cache, m_usage);
+}
+
+const VertexBuffer::Layout& VertexBuffer::GetLayout() const
+{
+	return m_layout;
+}
+
+unsigned int VertexBuffer::attribute_array_id() const
+{
+	return m_attrib_array_id;
+}
+
+unsigned int VertexBuffer::VertexCount() const
+{
+	return m_cache_size / m_stride;
+}
 

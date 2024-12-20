@@ -1,61 +1,45 @@
 #pragma once
 #include <vector>
+#include "GL_util.h"
 
 
-class Layout
+struct Attribute
 {
-private:
-	struct Attribute 
-	{
-	public:
-		unsigned int GL_type;
-		unsigned int count;
-		bool normalized;
+	unsigned int GL_Type;
+	unsigned int count;
+	bool normalized;
 
-		bool operator==(const Attribute& other) const
-		{
-			if ((GL_type == other.GL_type) && (count == other.count) && (normalized == other.normalized)) {
-				return true;
-			}
-			return false;
-		}
-	};
-	unsigned int m_vertex_array;
-	unsigned int m_stride;
-public:
-	std::vector<Attribute> contents;
-
-	Layout(const std::vector<Attribute>&);
-	~Layout();
-	bool operator==(const Layout& other) const {
-
-		if (other.contents == contents) {
-			return true;
-		}
-		return false;
-	}
+	bool operator==(const Attribute& other) const = default;	
 };
 
-class AttribedVertexBuffer {
-private:
+class VertexBuffer
+{
+public:
+	using Layout = typename std::vector<Attribute>;
+
+	VertexBuffer(const Layout& layout, unsigned int usage);
+	~VertexBuffer();
+
+	void Bind() const { glBindVertexArray(m_attrib_array_id); }
+	void Unbind() const { glBindVertexArray(0); }
 	
-	unsigned int m_vertex_buffer;
-public:
-	Layout layout;
-
-	void* data;
-	unsigned int total_mem_size;
-
-	unsigned int m_vertex_array;
-	AttribedVertexBuffer(const Layout& _layout, void* _data, unsigned int _size, unsigned int _usage);
-	AttribedVertexBuffer(void* _data, unsigned int _size, unsigned int _usage);
-	AttribedVertexBuffer(const Layout& _layout, unsigned int _usage);
-	AttribedVertexBuffer(unsigned int _usage);
-
-	~AttribedVertexBuffer();
-
-	void AddData(void* data, unsigned int size);
-
-
+	void SetData(void* data, unsigned int size);
+	void AppendData(void* data, unsigned int size);
 	void BufferData();
+
+	const Layout& GetLayout() const;
+	unsigned int attribute_array_id() const;
+	unsigned int VertexCount() const;
+
+private:
+	Layout m_layout;
+	void* m_cpu_vertex_cache;
+	size_t m_cache_size;
+	
+	unsigned int m_attrib_array_id;
+	unsigned int m_vertex_buffer_id;
+
+	unsigned int m_stride;
+	unsigned int m_usage;
 };
+
