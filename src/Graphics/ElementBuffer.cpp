@@ -2,6 +2,7 @@
 
 
 
+
 VertexBuffer::VertexBuffer(const VertexBuffer::Layout& layout, unsigned int usage)
 	: m_vertex_buffer_id(NULL), m_attrib_array_id(NULL), m_cpu_vertex_cache(nullptr), m_cache_size(NULL), m_stride(0), m_layout(layout), m_usage(usage)
 {
@@ -31,7 +32,7 @@ VertexBuffer::VertexBuffer(const VertexBuffer::Layout& layout, unsigned int usag
 		pointer += m_layout[i].count * GetGlTypeSize(m_layout[i].GL_Type);
 	}
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	//GLCall(glBindVertexArray(0));
+	GLCall(glBindVertexArray(0));
 }
 
 VertexBuffer::~VertexBuffer()
@@ -40,6 +41,8 @@ VertexBuffer::~VertexBuffer()
 
 	GLCall(glDeleteBuffers(1, &m_vertex_buffer_id));
 	GLCall(glDeleteVertexArrays(1, &m_attrib_array_id));
+
+	Debug::Log("Vertex buffer released.", Debug::INFO);
 }
 
 void VertexBuffer::SetData(void* data, unsigned int size)

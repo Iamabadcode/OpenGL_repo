@@ -10,6 +10,7 @@ class Debug
 private:
 	static bool m_Active;
 public:
+	~Debug();
 	enum log_type {
 		INFO, DEBUG, WARNING, ERROR
 	};

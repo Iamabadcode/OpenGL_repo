@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 
-#include "GL_util.h"
 #include "ElementBuffer.h"
 #include "IndexBuffer.h"
 
@@ -20,11 +19,11 @@ public:
 	static void LoadAllBuffers();
 
 private:
-	using vertex_buffer_group = std::vector<VertexBuffer>;
-	using index_buffer_group = std::vector<IndexBuffer<unsigned int>>;
-	
-	static vertex_buffer_group vertex_buffer_pools;
-	static index_buffer_group index_buffer_pool;
+	static unsigned int count;
+
+	static std::vector<VertexBuffer> vertex_buffer_pools;
+	static std::vector<IndexBuffer<unsigned int>> index_buffer_pool;
+
 
 	int m_vertex_pool_num;
 	unsigned int m_index_offset;

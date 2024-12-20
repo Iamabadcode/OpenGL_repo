@@ -47,8 +47,10 @@ IndexBuffer<index_type>::IndexBuffer(unsigned int vertex_buffer_id, unsigned int
 template<typename index_type>
 IndexBuffer<index_type>::~IndexBuffer()
 {
-	if (m_cpu_index_cache)
-		delete[] m_cpu_index_cache;
+	if (m_cpu_index_cache) delete[] m_cpu_index_cache;
+	GLCall(glDeleteBuffers(1, &m_index_buffer_id));
+
+	Debug::Log("Index buffer released.", Debug::INFO);
 }
 
 template<typename index_type>

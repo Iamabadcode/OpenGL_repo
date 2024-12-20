@@ -1,12 +1,15 @@
 #include "StaticMesh.h"
+#include "GL_util.h"
 
+unsigned int StaticMesh::count = 0;
 
-StaticMesh::vertex_buffer_group StaticMesh::vertex_buffer_pools;
-StaticMesh::index_buffer_group StaticMesh::index_buffer_pool;
+std::vector<VertexBuffer> StaticMesh::vertex_buffer_pools;
+std::vector<IndexBuffer<unsigned int>> StaticMesh::index_buffer_pool;
 
 StaticMesh::StaticMesh(std::vector<Attribute> layout, void* mesh_vertex_data, unsigned int mem_size)
 	: m_vertex_pool_num(-1), m_index_offset(0)
 {
+	count++;
 	for (int i = 0; i < vertex_buffer_pools.size(); i++) 
 	{
 		if (layout == vertex_buffer_pools[i].GetLayout()) {
@@ -22,14 +25,17 @@ StaticMesh::StaticMesh(std::vector<Attribute> layout, void* mesh_vertex_data, un
 
 	m_index_offset = vertex_buffer_pools[m_vertex_pool_num].VertexCount();
 	vertex_buffer_pools[m_vertex_pool_num].AppendData(mesh_vertex_data, mem_size);
-
-	std::cout << "Mesh created, number of current vertex pools is " << vertex_buffer_pools.size() << std::endl;
-	std::cout << "size of current vertex pool is " << vertex_buffer_pools[m_vertex_pool_num].VertexCount() << " verticies." << std::endl;
 }
 
 StaticMesh::~StaticMesh()
 {
-
+	count--;
+	Debug::Log("Staticmesh released.", Debug::INFO);
+	if (count == 0) {
+		vertex_buffer_pools.clear();
+		index_buffer_pool.clear();
+	}
+	
 }
 
 void StaticMesh::AddProgram(unsigned int program_id, unsigned int* index_buffer_data, unsigned int index_count)
@@ -53,11 +59,7 @@ void StaticMesh::AddProgram(unsigned int program_id, unsigned int* index_buffer_
 	index_buffer_pool[assigned_pool].AppendData(index_buffer_data, index_count);
 	index_buffer_pool[assigned_pool].BatchShiftValue(programs[programs.size() - 1].starting_index, index_count, m_index_offset);
 
-	index_buffer_pool[0].BufferData();
-
-	std::cout << "New Program added. Number of programs in this mesh is " << programs.size() << std::endl;
-	std::cout << "number of Index Pools is " << index_buffer_pool.size() << ", size of this pool is " << index_buffer_pool[assigned_pool].index_count() << " indicies." << std::endl;
-	index_buffer_pool[assigned_pool].Printout();
+	index_buffer_pool[assigned_pool].BufferData();
 }
 
 void StaticMesh::DrawFullMesh()
@@ -65,7 +67,7 @@ void StaticMesh::DrawFullMesh()
 	for (int i = 0; i < programs.size(); i++) {
 		vertex_buffer_pools[m_vertex_pool_num].Bind();
 		index_buffer_pool[programs[i].index_pool_num].Bind();
-		glDrawElements(GL_TRIANGLES, programs[i].index_count, GL_UNSIGNED_INT, (void*)programs[i].starting_index);
+		glDrawElements(GL_TRIANGLES, programs[i].index_count, GL_UNSIGNED_INT, (void*)(programs[i].starting_index * sizeof(unsigned int)));
 	}
 }
 

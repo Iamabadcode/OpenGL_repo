@@ -3,6 +3,11 @@
 
 bool Debug::m_Active = false;
 
+Debug::~Debug()
+{
+	Debug::Log("Ended Debugger.", INFO);
+}
+
 void Debug::activate()
 {
 	m_Active = true;
