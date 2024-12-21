@@ -19,7 +19,7 @@ public:
 	using Layout = typename std::vector<Attribute>;
 
 	VertexBuffer(const Layout& layout, unsigned int usage);
-	~VertexBuffer();
+	void Free();
 
 	void Bind() const { glBindVertexArray(m_attrib_array_id); }
 	void Unbind() const { glBindVertexArray(0); }

@@ -56,7 +56,7 @@ void IndexBuffer<index_type>::Free()
 template<typename index_type>
 void IndexBuffer<index_type>::SetData(index_type* data, unsigned int count)
 {
-	index_type* new_ptr = new index_type[count]; ASSERT(new_ptr);
+	index_type* new_ptr = new index_type[count]; ASSERT(new_ptr); //Allocation failiure
 	memcpy(new_ptr, data, count * sizeof(index_type));
 	if (m_cpu_index_cache) delete[] m_cpu_index_cache;
 	m_index_count = count;
@@ -67,7 +67,7 @@ template<typename index_type>
 void IndexBuffer<index_type>::AppendData(index_type* data, unsigned int count)
 {
 	if (!m_cpu_index_cache) { SetData(data, count); return; }
-	index_type* new_ptr = new index_type[m_index_count + count]; ASSERT(new_ptr);
+	index_type* new_ptr = new index_type[m_index_count + count]; ASSERT(new_ptr); //Allocation failiure
 	memcpy(new_ptr, m_cpu_index_cache, m_index_count * sizeof(index_type));
 	memcpy(reinterpret_cast<char*> (new_ptr) + (m_index_count * sizeof(index_type)), data, count * sizeof(index_type));
 	delete[] m_cpu_index_cache;

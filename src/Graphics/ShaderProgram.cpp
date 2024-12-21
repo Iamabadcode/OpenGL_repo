@@ -20,20 +20,20 @@ ShaderProgram::ShaderProgram(std::vector<std::pair<const char*, unsigned int>> s
     m_program_id = glCreateProgram();
     for (int i = 0; i < compiled_shaders.size(); i++) 
     {
-        glAttachShader(m_program_id, compiled_shaders[i]);
+        GLCall(glAttachShader(m_program_id, compiled_shaders[i]));
     }
     glLinkProgram(m_program_id);
     GLint success;
-    glGetProgramiv(m_program_id, GL_LINK_STATUS, &success);
+    GLCall(glGetProgramiv(m_program_id, GL_LINK_STATUS, &success));
     if (!success) 
     {
         char infoLog[512];
-        glGetProgramInfoLog(m_program_id, 512, nullptr, infoLog);
+        GLCall(glGetProgramInfoLog(m_program_id, 512, nullptr, infoLog));
         std::cerr << "ERROR: Shader Program Linking Failed\n" << infoLog << std::endl;
     }
     for (int i = 0; i < compiled_shaders.size(); i++) 
     {
-        glDeleteShader(compiled_shaders[i]);
+        GLCall(glDeleteShader(compiled_shaders[i]));
     }
     Debug::Log("Created shader program", Debug::INFO);
 }
@@ -41,22 +41,22 @@ ShaderProgram::ShaderProgram(std::vector<std::pair<const char*, unsigned int>> s
 ShaderProgram::~ShaderProgram()
 {
     if (m_program_id);
-    glDeleteProgram(m_program_id);
+    GLCall(glDeleteProgram(m_program_id));
     Debug::Log("Deleted shader program.", Debug::INFO);
 }
 
 unsigned int ShaderProgram::compileShader(const char* source, unsigned int shader_type)
 {
     GLuint shader = glCreateShader(shader_type);
-    glShaderSource(shader, 1, &source, nullptr);
+    GLCall(glShaderSource(shader, 1, &source, nullptr));
     glCompileShader(shader);
 
     // Check for compilation errors
     GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    GLCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &success));
     if (!success) {
         char infoLog[512];
-        glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+        GLCall(glGetShaderInfoLog(shader, 512, nullptr, infoLog));
         std::cerr << "ERROR: Shader Compilation Failed\n" << infoLog << std::endl;
     }
 

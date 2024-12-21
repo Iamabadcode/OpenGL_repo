@@ -22,6 +22,8 @@ inline unsigned int GetGlTypeSize(unsigned int GL_Type)
 		return sizeof(GLbyte);
 	case GL_UNSIGNED_BYTE:
 		return sizeof(GLubyte);
+	case GL_DOUBLE:
+		return sizeof(GLdouble);
 	}
 	ASSERT(false);
 	return 0;

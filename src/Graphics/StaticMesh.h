@@ -22,7 +22,7 @@ private:
 	static unsigned int count;
 
 	static std::vector<VertexBuffer> vertex_buffer_pools;
-	static std::vector<IndexBuffer<unsigned int>> index_buffer_pool;
+	static std::vector<IndexBuffer<unsigned int>> index_buffer_pools;
 
 
 	int m_vertex_pool_num;

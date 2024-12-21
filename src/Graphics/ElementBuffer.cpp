@@ -1,8 +1,6 @@
 #include "ElementBuffer.h"
 
 
-
-
 VertexBuffer::VertexBuffer(const VertexBuffer::Layout& layout, unsigned int usage)
 	: m_vertex_buffer_id(NULL), m_attrib_array_id(NULL), m_cpu_vertex_cache(nullptr), m_cache_size(NULL), m_stride(0), m_layout(layout), m_usage(usage)
 {
@@ -38,7 +36,7 @@ VertexBuffer::VertexBuffer(const VertexBuffer::Layout& layout, unsigned int usag
 	Debug::Log("Created vertex buffer", Debug::INFO);
 }
 
-VertexBuffer::~VertexBuffer()
+void VertexBuffer::Free()
 {
 	if(m_cpu_vertex_cache)	free(m_cpu_vertex_cache);
 
@@ -50,7 +48,7 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::SetData(void* data, unsigned int size)
 {
-	void* new_data_ptr = malloc(size); ASSERT(new_data_ptr);
+	void* new_data_ptr = malloc(size); ASSERT(new_data_ptr); //Allocation failiure
 	memcpy(new_data_ptr, data, size);
 	if(m_cpu_vertex_cache) free(m_cpu_vertex_cache);
 	m_cpu_vertex_cache = new_data_ptr;
@@ -59,7 +57,7 @@ void VertexBuffer::SetData(void* data, unsigned int size)
 
 void VertexBuffer::AppendData(void* data, unsigned int size)
 {
-	void* new_data_ptr = malloc(m_cache_size + size); ASSERT(new_data_ptr);
+	void* new_data_ptr = malloc(m_cache_size + size); ASSERT(new_data_ptr); //Allocation failiure
 	memcpy(new_data_ptr, m_cpu_vertex_cache, m_cache_size);
 	memcpy(reinterpret_cast<char*>(new_data_ptr) + m_cache_size, data, size);
 	if(m_cpu_vertex_cache) free(m_cpu_vertex_cache);
