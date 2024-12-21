@@ -33,7 +33,7 @@ GLFW_window::~GLFW_window()
 {
 	glfwDestroyWindow(m_Window);
     glfwTerminate();
-    Debug::Log("Window released", Debug::INFO);
+    Debug::Log("Released window", Debug::INFO);
 }
 
 GLFWwindow* GLFW_window::ptr() 

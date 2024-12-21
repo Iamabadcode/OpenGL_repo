@@ -5,11 +5,10 @@
 template<typename index_type>
 class IndexBuffer
 {
-
 public:
 	IndexBuffer(unsigned int vertex_buffer_id, unsigned int shader_program_id, unsigned int usage);
-	~IndexBuffer();
-	
+	void Free();
+
 	void SetData(index_type* data, unsigned int count);
 	void AppendData(index_type* data, unsigned int count);
 	void BatchShiftValue(unsigned int index, unsigned int val_count, unsigned int value_to_add);
@@ -19,7 +18,7 @@ public:
 		
 	void Draw();
 
-	inline void Bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_buffer_id); }
+	inline void Bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_buffer_id); glUseProgram(m_shader_program_id); }
 	inline void Unbind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
 
 	inline unsigned int shader_program_id() const { return m_shader_program_id; }
@@ -42,15 +41,16 @@ IndexBuffer<index_type>::IndexBuffer(unsigned int vertex_buffer_id, unsigned int
 	: m_cpu_index_cache(nullptr), m_index_count(0), m_usage(usage), m_array_buffer_id(vertex_buffer_id), m_shader_program_id(shader_program_id)
 {
 	GLCall(glGenBuffers(1, &m_index_buffer_id));
+	Debug::Log("Created index buffer", Debug::INFO);
 }
 
 template<typename index_type>
-IndexBuffer<index_type>::~IndexBuffer()
+void IndexBuffer<index_type>::Free()
 {
 	if (m_cpu_index_cache) delete[] m_cpu_index_cache;
 	GLCall(glDeleteBuffers(1, &m_index_buffer_id));
 
-	Debug::Log("Index buffer released.", Debug::INFO);
+	Debug::Log("Released index buffer", Debug::INFO);
 }
 
 template<typename index_type>
@@ -104,6 +104,7 @@ void IndexBuffer<index_type>::Draw()
 {
 	glUseProgram(0);
 	glBindVertexArray(m_array_buffer_id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_buffer_id);
 
 	glDrawElements(GL_TRIANGLES, m_index_count, GL_UNSIGNED_INT, 0);
 }

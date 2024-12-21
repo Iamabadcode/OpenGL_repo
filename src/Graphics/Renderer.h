@@ -2,9 +2,17 @@
 
 #include <GL/glew.h>
 
-#include "Window.h"
-#include "../util/Debug.h"
 #include "../util/math.h"
+#include "../util/Debug.h"
+
+#include "Window.h"
+#include "ElementBuffer.h"
+#include "StaticMesh.h"
+#include "ShaderProgram.h"
+
+
+
+
 
 
 class Renderer

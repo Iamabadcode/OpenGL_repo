@@ -8,7 +8,8 @@ VertexBuffer::VertexBuffer(const VertexBuffer::Layout& layout, unsigned int usag
 {
 	unsigned int pointer = 0;
 	
-	for (int i = 0; i < m_layout.size(); i++) {
+	for (int i = 0; i < m_layout.size(); i++)
+	{
 		m_stride += m_layout[i].count * GetGlTypeSize(m_layout[i].GL_Type);
 	}
 
@@ -18,7 +19,8 @@ VertexBuffer::VertexBuffer(const VertexBuffer::Layout& layout, unsigned int usag
 	GLCall(glGenVertexArrays(1, &m_attrib_array_id));
 	GLCall(glBindVertexArray(m_attrib_array_id));
 
-	for(int i = 0; i < m_layout.size(); i++) {
+	for(int i = 0; i < m_layout.size(); i++) 
+	{
 		
 		GLCall(glVertexAttribPointer(
 			i,
@@ -33,6 +35,7 @@ VertexBuffer::VertexBuffer(const VertexBuffer::Layout& layout, unsigned int usag
 	}
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GLCall(glBindVertexArray(0));
+	Debug::Log("Created vertex buffer", Debug::INFO);
 }
 
 VertexBuffer::~VertexBuffer()
@@ -42,7 +45,7 @@ VertexBuffer::~VertexBuffer()
 	GLCall(glDeleteBuffers(1, &m_vertex_buffer_id));
 	GLCall(glDeleteVertexArrays(1, &m_attrib_array_id));
 
-	Debug::Log("Vertex buffer released.", Debug::INFO);
+	Debug::Log("Released vertex buffer", Debug::INFO);
 }
 
 void VertexBuffer::SetData(void* data, unsigned int size)
