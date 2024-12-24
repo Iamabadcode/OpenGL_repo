@@ -1,11 +1,6 @@
 #pragma once
-
-#include <GL/glew.h>
-
-#include "../util/math.h"
-#include "../util/Debug.h"
-
-#include "Window.h"
+#include <concepts>
+#include "GL_util.h"
 #include "ElementBuffer.h"
 #include "StaticMesh.h"
 #include "ShaderProgram.h"
@@ -14,16 +9,27 @@
 
 
 
-
 class Renderer
 {
-private:
+
 public:
 	Renderer(vec2ui, const char* name);
 	Renderer(const char* name);
 	~Renderer();
 
-	GLFW_window window;
+	void SetKeyCallbackFn(void (*callback)(GLFWwindow*, int, int, int, int)) const;
+	bool KeyState(const char);
 
+	void bufferSwap() const;
+	void clear() const;
+	bool shouldClose() const;
+	void pollEvents() const;
+private:
+	GLFWwindow* m_window_ptr;
+
+	GLFWwindow* openWindow(vec2ui, const char* name)	const;
+	GLFWwindow* openFullScreenWindow(const char* name)	const;
+
+	void closeWindow(GLFWwindow* window)	const;
 };
 

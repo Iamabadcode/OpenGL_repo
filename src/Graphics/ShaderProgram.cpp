@@ -1,6 +1,5 @@
-#include <GL/glew.h>
-#include "ShaderProgram.h"
 #include "GL_util.h"
+#include "ShaderProgram.h"
 #include <string>
 #include <stdexcept>
 #include <iostream>
@@ -42,7 +41,7 @@ ShaderProgram::~ShaderProgram()
 {
     if (m_program_id);
     GLCall(glDeleteProgram(m_program_id));
-    Debug::Log("Deleted shader program.", Debug::INFO);
+    Debug::Log("Deleted shader program", Debug::INFO);
 }
 
 unsigned int ShaderProgram::compileShader(const char* source, unsigned int shader_type)
@@ -58,6 +57,8 @@ unsigned int ShaderProgram::compileShader(const char* source, unsigned int shade
         char infoLog[512];
         GLCall(glGetShaderInfoLog(shader, 512, nullptr, infoLog));
         std::cerr << "ERROR: Shader Compilation Failed\n" << infoLog << std::endl;
+        glfwTerminate();
+        ASSERT(false); //shader failed to compile
     }
 
     return shader;

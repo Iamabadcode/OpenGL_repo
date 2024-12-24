@@ -7,7 +7,7 @@ std::vector<VertexBuffer> StaticMesh::vertex_buffer_pools;
 std::vector<IndexBuffer<unsigned int>> StaticMesh::index_buffer_pools;
 
 StaticMesh::StaticMesh(std::vector<Attribute> layout, void* mesh_vertex_data, unsigned int mem_size)
-	: m_vertex_pool_num(-1), m_index_offset(0)
+	: m_vertex_pool_num(-1), m_index_offset(0), programs()
 {
 	count++;
 	for (int i = 0; i < vertex_buffer_pools.size(); i++) 
@@ -27,6 +27,8 @@ StaticMesh::StaticMesh(std::vector<Attribute> layout, void* mesh_vertex_data, un
 	m_index_offset = vertex_buffer_pools[m_vertex_pool_num].VertexCount();
 	vertex_buffer_pools[m_vertex_pool_num].AppendData(mesh_vertex_data, mem_size);
 	vertex_buffer_pools[m_vertex_pool_num].BufferData();
+
+	Debug::Log("Added static mesh", Debug::INFO);
 }
 
 StaticMesh::~StaticMesh()
@@ -81,6 +83,10 @@ void StaticMesh::AddProgram(unsigned int program_id, unsigned int* index_buffer_
 
 void StaticMesh::DrawFullMesh()
 {
+	if (programs.size() == 0) 
+	{
+		IndexBuffer<unsigned int>::Unbind();
+	}
 	for (int i = 0; i < programs.size(); i++) 
 	{
 		vertex_buffer_pools[m_vertex_pool_num].Bind();
@@ -94,5 +100,12 @@ void StaticMesh::LoadAllBuffers()
 	for(int i = 0; i < vertex_buffer_pools.size(); i++)
 	{
 		vertex_buffer_pools[i].BufferData();
+	}
+}
+
+void StaticMesh::FastDraw()
+{
+	for (IndexBuffer IBO : index_buffer_pools) {
+		IBO.Draw();
 	}
 }

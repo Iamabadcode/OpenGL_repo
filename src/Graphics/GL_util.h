@@ -1,6 +1,8 @@
 #pragma once
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "../util/Debug.h"
+#include "../util/math.h"
 
 #define GLCall(x)\
 	{while(glGetError()){} x;\

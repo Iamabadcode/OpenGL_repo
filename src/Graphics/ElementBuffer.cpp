@@ -70,19 +70,3 @@ void VertexBuffer::BufferData()
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer_id);
 	glBufferData(GL_ARRAY_BUFFER, m_cache_size, m_cpu_vertex_cache, m_usage);
 }
-
-const VertexBuffer::Layout& VertexBuffer::GetLayout() const
-{
-	return m_layout;
-}
-
-unsigned int VertexBuffer::attribute_array_id() const
-{
-	return m_attrib_array_id;
-}
-
-unsigned int VertexBuffer::VertexCount() const
-{
-	return m_cache_size / m_stride;
-}
-

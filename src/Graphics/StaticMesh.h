@@ -17,7 +17,7 @@ public:
 	void DrawFullMesh();
 
 	static void LoadAllBuffers();
-
+	static void FastDraw();
 private:
 	static unsigned int count;
 

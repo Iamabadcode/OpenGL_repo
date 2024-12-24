@@ -11,18 +11,19 @@ public:
 
 	void SetData(index_type* data, unsigned int count);
 	void AppendData(index_type* data, unsigned int count);
+	void BufferData();
+
 	void BatchShiftValue(unsigned int index, unsigned int val_count, unsigned int value_to_add);
 	
-	void BufferData();
 	void Printout();
 		
-	void Draw();
+	inline void Draw();
 
-	inline void Bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_buffer_id); glUseProgram(m_shader_program_id); }
-	inline void Unbind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
-
-	inline unsigned int shader_program_id() const { return m_shader_program_id; }
 	inline unsigned int index_count() const { return m_index_count; }
+	inline unsigned int shader_program_id() const { return m_shader_program_id; }
+	inline void Bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_buffer_id); glUseProgram(m_shader_program_id); }
+	inline static void Unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+	
 private:
 	unsigned int m_usage;
 	index_type* m_cpu_index_cache;
@@ -102,7 +103,7 @@ inline void IndexBuffer<index_type>::Printout()
 template<typename index_type>
 void IndexBuffer<index_type>::Draw()
 {
-	glUseProgram(0);
+	glUseProgram(m_shader_program_id);
 	glBindVertexArray(m_array_buffer_id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_buffer_id);
 
