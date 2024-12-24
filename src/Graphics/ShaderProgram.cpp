@@ -8,6 +8,7 @@
 
 
 ShaderProgram::ShaderProgram(std::vector<std::pair<const char*, unsigned int>> shaders)
+    : m_program_id(0), m_texture_id(0)
 {
     std::vector<unsigned int> compiled_shaders;
     for (int i = 0; i < shaders.size(); i++)
@@ -44,6 +45,11 @@ ShaderProgram::~ShaderProgram()
     Debug::Log("Deleted shader program", Debug::INFO);
 }
 
+void ShaderProgram::CoupleTexture(unsigned int t_texture_id)
+{
+    m_texture_id = t_texture_id;
+}
+
 unsigned int ShaderProgram::compileShader(const char* source, unsigned int shader_type)
 {
     GLuint shader = glCreateShader(shader_type);
@@ -72,7 +78,7 @@ std::string ShaderProgram::getProgramFromFile(const char* name)
     }
     std::stringstream buffer;
     buffer << file.rdbuf();
-    Debug::Log(std::string("Loaded ") + name, Debug::INFO);
+    Debug::Log(std::string("Loaded shader ") + name, Debug::INFO);
     return buffer.str();
 }
 

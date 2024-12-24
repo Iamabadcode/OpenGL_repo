@@ -1,28 +1,22 @@
 #include <iostream>
 #include "Graphics/Renderer.h"
 
-bool running;
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) 
-{
-	if (key == GLFW_KEY_X && action == GLFW_PRESS) 
-	{
-		running = false;
-	}
-}
 
 int main()
 {
+	Debug::activate();
 	Renderer renderer( {800, 600}, "OpenGL window");
 	
 	float verticies[] = {
-		-1.2, -1.2, 1.2, 1.0 ,0.0,0.0,
-		1.2, -1.2, -1.2, 1.0, 0.0, 0.0,
-		1.2, 1.2, 1.2, 0.0, 1.0, 0.0,
-		-1.2, 1.2, 1.2, 0.0, 0.5, 0.0
+		-1.2, -1.2, 1.2, 1.0 ,0.0,0.0, 0.0, 0.0,
+		1.2, -1.2, 1.2, 1.0, 0.0, 0.0, 1.0, 0.0,
+		1.2, 1.2, 1.2, 0.0, 1.0, 0.0, 1.0, 1.0,
+		-1.2, 1.2, 1.2, 0.0, 0.5, 0.0, 0.0, 1.0
 	};
-	StaticMesh plane({ {GL_FLOAT, 3, false}, {GL_FLOAT, 3, false} }, verticies, sizeof(verticies));
+	StaticMesh plane({ {GL_FLOAT, 3, false}, {GL_FLOAT, 3, false} , { GL_FLOAT, 2, false} }, verticies, sizeof(verticies));
 	ShaderProgram plastic_program({ { "shaders/3dShaderfrg.shader", GL_FRAGMENT_SHADER}, {"shaders/3dShadervtx.shader", GL_VERTEX_SHADER} });
+	Texture texture("textures/wall.jpg");
+	plastic_program.CoupleTexture(texture.id());
 	unsigned int indicies[] = {
 		0,1,2, 2,3,0
 	};
@@ -53,9 +47,9 @@ int main()
 	plastic_program.Use();
 
 	// Find uniform locations
-	GLuint modelLoc = glGetUniformLocation(plastic_program.id(), "model");
-	GLuint viewLoc = glGetUniformLocation(plastic_program.id(), "view");
-	GLuint projLoc = glGetUniformLocation(plastic_program.id(), "projection");
+	int modelLoc = glGetUniformLocation(plastic_program.id(), "model");
+	int viewLoc = glGetUniformLocation(plastic_program.id(), "view");
+	int projLoc = glGetUniformLocation(plastic_program.id(), "projection");
 
 	// Set the uniforms
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model);

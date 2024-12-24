@@ -4,6 +4,7 @@
 #include "ElementBuffer.h"
 #include "StaticMesh.h"
 #include "ShaderProgram.h"
+#include "Texture.h"
 
 
 
